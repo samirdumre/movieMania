@@ -48,8 +48,7 @@ function NavBar({children}) {
 }
 
 
-function Search() {
-    const [query, setQuery] = useState("");
+function Search({query, setQuery}) {
 
     return (<input
         className="search"
@@ -206,16 +205,18 @@ function ErrorMessage({message}) {
 const KEY = "83b67ae1";
 
 function App() {
+    const [query, setQuery] = useState("avengers");
     const [movies, setMovies] = useState([]);
     const [watched, setWatched] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
-    const query = "safafda";
+    const tempQuery = "avengers";
 
     useEffect(function () {
         async function fetchMovies() {
             try {
                 setIsLoading(true);
+                setError("");
                 const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`);
 
                 if (!res.ok) {
@@ -229,23 +230,26 @@ function App() {
                 }
 
                 setMovies(data.Search);
-                console.log(data);
             } catch (err) {
-                console.error(err.message);
                 setError(err.message);
             } finally {
                 setIsLoading(false);
             }
         }
 
+        if(!query.length){
+            setMovies([]);
+            setError("");
+            return;
+        }
 
         fetchMovies();
-    }, []);
+    }, [query]);
 
     return (<>
         <NavBar>
             <Logo/>
-            <Search/>
+            <Search query={query} setQuery={setQuery}/>
             <NumResults movies={movies}/>
         </NavBar>
         <Main>
